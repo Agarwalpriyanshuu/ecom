@@ -1,19 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Your Cart</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        a {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            color: #3498db;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        li {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 1.2rem;
+        }
+    </style>
 </head>
 <body>
     <h1>Your Shopping Cart</h1>
-    <a href="{{ url_for('home') }}">Continue Shopping</a>
+    <a href="{{ url_for('home') }}">← Continue Shopping</a>
+
     <ul>
         {% for item in items %}
         <li>
-            {{ item.product.name }} - {{ item.qty }} x ${{ "%.2f"|format(item.product.price) }} = ${{ "%.2f"|format(item.subtotal) }}
+            {{ item.product.product_name }} — {{ item.qty }} × ${{ "%.2f"|format(item.product.price) }} = 
+            ${{ "%.2f"|format(item.product.price * item.qty) }}
         </li>
         {% endfor %}
     </ul>
+
     <h3>Total: ${{ "%.2f"|format(total) }}</h3>
-    <a href="{{ url_for('checkout') }}">Checkout</a>
+    <div style="text-align: center;">
+        <a href="{{ url_for('checkout') }}" style="background: #27ae60; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Checkout</a>
+    </div>
 </body>
 </html>

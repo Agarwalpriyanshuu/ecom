@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>My Shop</title>
   <style>
-    /* Reset & base */
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
@@ -21,7 +18,23 @@
       margin-bottom: 1rem;
       color: #2c3e50;
     }
-    /* Container for products */
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      max-width: 1200px;
+      margin: 0 auto 2rem auto;
+    }
+    .top-bar a {
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-decoration: none;
+      color: #2980b9;
+      transition: color 0.3s ease;
+    }
+    .top-bar a:hover {
+      color: #3498db;
+    }
     .products-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -29,7 +42,6 @@
       max-width: 1200px;
       margin: 0 auto;
     }
-    /* Each product card */
     .product-card {
       background: white;
       border-radius: 10px;
@@ -83,30 +95,9 @@
     .btn-add:hover {
       background: #3498db;
     }
-    /* Cart link at top */
-    .cart-link {
-      display: block;
-      max-width: 1200px;
-      margin: 0 auto 2rem auto;
-      text-align: right;
-      font-weight: 600;
-      font-size: 1.1rem;
-      text-decoration: none;
-      color: #2980b9;
-      transition: color 0.3s ease;
-    }
-    .cart-link:hover {
-      color: #3498db;
-    }
-
-    /* Responsive smaller devices */
     @media (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
-      .product-image {
-        height: 150px;
-      }
+      body { padding: 10px; }
+      .product-image { height: 150px; }
       .btn-add {
         font-size: 0.9rem;
         padding: 8px 12px;
@@ -116,22 +107,26 @@
 </head>
 <body>
   <h1>Welcome to My Shop</h1>
-  <a class="cart-link" href="{{ url_for('cart') }}">🛒 View Cart</a>
-  
+
+  <div class="top-bar">
+    <a href="{{ url_for('cart') }}">🛒 View Cart</a>
+    <a href="{{ url_for('checkout') }}">✅ Checkout</a>
+  </div>
+
   <div class="products-grid">
     {% for product in products %}
       <div class="product-card">
         <img
           src="{{ product.image_url if product.image_url else 'https://via.placeholder.com/300x180?text=No+Image' }}"
-          alt="{{ product.name }}"
+          alt="{{ product.product_name }}"
           class="product-image"
         />
         <div class="product-details">
           <div>
-            <div class="product-name">{{ product.name }}</div>
+            <div class="product-name">{{ product.product_name }}</div>
             <div class="product-price">${{ '%.2f' | format(product.price) }}</div>
           </div>
-          <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn-add">Add to Cart</a>
+          <a href="{{ url_for('add_to_cart', product_id=product.product_id) }}" class="btn-add">Add to Cart</a>
         </div>
       </div>
     {% endfor %}
