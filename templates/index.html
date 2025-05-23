@@ -124,7 +124,7 @@
         <div class="product-details">
           <div>
             <div class="product-name">{{ product.product_name }}</div>
-            <div class="product-price">${{ '%.2f' | format(product.price) }}</div>
+            <div class="product-price">Rs{{ '%.2f' | format(product.price) }}</div>
           </div>
           <a href="{{ url_for('add_to_cart', product_id=product.product_id) }}" class="btn-add">Add to Cart</a>
         </div>

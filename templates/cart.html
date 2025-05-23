@@ -59,12 +59,12 @@
         {% for item in items %}
         <li>
             {{ item.product.product_name }} — {{ item.qty }} × ${{ "%.2f"|format(item.product.price) }} = 
-            ${{ "%.2f"|format(item.product.price * item.qty) }}
+            Rs{{ "%.2f"|format(item.product.price * item.qty) }}
         </li>
         {% endfor %}
     </ul>
 
-    <h3>Total: ${{ "%.2f"|format(total) }}</h3>
+    <h3>Total: Rs{{ "%.2f"|format(total) }}</h3>
     <div style="text-align: center;">
         <a href="{{ url_for('checkout') }}" style="background: #27ae60; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Checkout</a>
     </div>
