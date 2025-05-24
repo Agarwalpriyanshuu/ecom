@@ -1,5 +1,6 @@
-werkzeug<3.0
+Flask
+SQLAlchemy
+pymysql
 pytest
-Flask==2.3.2
-Flask-SQLAlchemy==3.0.3
-PyMySQL==1.0.3
+pytest-flask
+werkzeug<3.0
