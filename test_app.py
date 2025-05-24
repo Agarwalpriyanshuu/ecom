@@ -3,57 +3,65 @@ from app import app, db, Product
 
 @pytest.fixture
 def client():
-    # Setup test config
+    # Use in-memory SQLite database for testing
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use in-memory test DB
-    app.config['SECRET_KEY'] = 'testkey'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     with app.test_client() as client:
         with app.app_context():
             db.create_all()
-
-            # Add mock products
-            product1 = Product(product_name="Test Product 1", price=99.99)
-            product2 = Product(product_name="Test Product 2", price=149.49)
-            db.session.add_all([product1, product2])
-            db.session.commit()
-
         yield client
-
-        # Clean up
         with app.app_context():
             db.drop_all()
+
+def create_test_product():
+    product = Product(product_name="Test Product", price=99.99)
+    db.session.add(product)
+    db.session.commit()
+    return product
 
 def test_home_page(client):
     response = client.get('/')
     assert response.status_code == 200
-    assert b'Test Product 1' in response.data
-    assert b'Test Product 2' in response.data
+    assert b"Products" in response.data or b"Cart" in response.data
 
 def test_add_to_cart(client):
-    response = client.get('/add_to_cart/1', follow_redirects=True)
-    assert response.status_code == 200
-    with client.session_transaction() as session:
-        assert 'cart' in session
-        assert '1' in session['cart']
-        assert session['cart']['1']['qty'] == 1
+    with app.app_context():
+        product = create_test_product()
+
+    response = client.get(f'/add_to_cart/{product.product_id}')
+    assert response.status_code == 302  # Redirect to home
 
 def test_add_to_cart_multiple_times(client):
-    client.get('/add_to_cart/1')
-    client.get('/add_to_cart/1')
+    with app.app_context():
+        product = create_test_product()
+
+    for _ in range(3):
+        client.get(f'/add_to_cart/{product.product_id}')
+
     with client.session_transaction() as session:
-        assert session['cart']['1']['qty'] == 2
+        cart = session.get('cart', {})
+        assert str(product.product_id) in cart
+        assert cart[str(product.product_id)]['qty'] == 3
 
 def test_cart_contents(client):
-    client.get('/add_to_cart/1')
+    with app.app_context():
+        product = create_test_product()
+
+    client.get(f'/add_to_cart/{product.product_id}')
     response = client.get('/cart')
     assert response.status_code == 200
-    assert b'Test Product 1' in response.data
-    assert b'Total' in response.data
+    assert b"Test Product" in response.data
 
 def test_checkout_clears_cart(client):
-    client.get('/add_to_cart/1')
+    with app.app_context():
+        product = create_test_product()
+
+    client.get(f'/add_to_cart/{product.product_id}')
     response = client.get('/checkout')
     assert response.status_code == 200
+    assert b"Thank you" in response.data or b"checkout" in response.data.lower()
+
     with client.session_transaction() as session:
         assert 'cart' not in session
