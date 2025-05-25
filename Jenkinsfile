@@ -29,7 +29,7 @@ pipeline {
             steps {
                 sh '''
                 . venv/bin/activate
-                pytest --maxfail=1 --disable-warnings --junitxml=report.xml
+                venv/bin/pytest --maxfail=1 --disable-warnings --junitxml=report.xml
                 '''
             }
         }
