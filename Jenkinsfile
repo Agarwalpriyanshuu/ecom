@@ -20,9 +20,9 @@ pipeline {
                     . venv/bin/activate
                     echo "Using pip from: $(which pip)"
                     unset PIP_REQUIRE_VIRTUALENV
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                    pip install bandit
+                    pip install --upgrade pip --break-system-packages
+                    pip install -r requirements.txt --break-system-packages
+                    pip install bandit pytest --break-system-packages                    
                     pytest --maxfail=1 --disable-warnings --junitxml=report.xml
                     bandit -r . -f json -o bandit-report.json || true
                 '''
