@@ -13,12 +13,12 @@ pipeline {
             }
         }
 
-        stage('Run Pytest') {
+	stage('Setup and Test') {
             steps {
                 sh '''
                     python3 -m venv venv
                     . venv/bin/activate
-                    curl -sS https://bootstrap.pypa.io/get-pip.py | python3
+                    pip install --upgrade pip
                     pip install -r requirements.txt
                     pytest --maxfail=1 --disable-warnings --junitxml=report.xml
                 '''
