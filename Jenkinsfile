@@ -9,44 +9,69 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'master', url: 'https://github.com/Agarwalpriyanshuu/ecom.git', credentialsId: 'git-token'
+                git branch: 'master', url: 'https://github.com/Agarwalpriyanshuu/dev.git', credentialsId: 'git-token'
+            }
+        }
+
+        stage('Setup Python Virtual Environment') {
+            steps {
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Run Pytest') {
             steps {
                 sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    curl -sS https://bootstrap.pypa.io/get-pip.py | python3
-                    pip install -r requirements.txt
-                    pytest --maxfail=1 --disable-warnings --junitxml=report.xml
+                . venv/bin/activate
+                pytest --maxfail=1 --disable-warnings --junitxml=report.xml
                 '''
             }
         }
-    }
-        
+
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv("${SONARQUBE_ENV}") {
                     withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                        sh 'sonar-scanner -Dsonar.login=$SONAR_TOKEN'
+                        sh '''
+                        . venv/bin/activate
+                        sonar-scanner -Dsonar.login=$SONAR_TOKEN
+                        '''
                     }
                 }
             }
         }
 
+        stage('SAST Scan (Bandit)') {
+            steps {
+                sh '''
+                . venv/bin/activate
+                bandit -r . -f json -o bandit-report.json || true
+                '''
+            }
+        }
+
+        stage('Generate SBOM (Syft)') {
+            steps {
+                sh '''
+                syft dir:. -o spdx-json > sbom.spdx.json
+                '''
+            }
+        }
+    }
 
     post {
         always {
-            echo "🧹 Cleaning up workspace..."
-            deleteDir()
-        }
-        success {
-            echo "✅ Build and tests passed successfully!"
-        }
-        failure {
-            echo "❌ Build failed. Please check the logs above."
+            archiveArtifacts artifacts: '*.xml, *.json, *.spdx.json', fingerprint: true
+            sh '''
+            deactivate || true
+            rm -rf venv
+            '''
+            cleanWs()
         }
     }
 }
