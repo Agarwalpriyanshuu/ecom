@@ -13,6 +13,16 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                        sh 'sonar-scanner -Dsonar.login=$SONAR_TOKEN'
+                    }
+                }
+            }
+        }
+
         stage('Run Pytest') {
             steps {
                 sh '''
@@ -25,17 +35,6 @@ pipeline {
             }
         }
     }
-        
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv("${SONARQUBE_ENV}") {
-                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                        sh 'sonar-scanner -Dsonar.login=$SONAR_TOKEN'
-                    }
-                }
-            }
-        }
-
 
     post {
         always {
