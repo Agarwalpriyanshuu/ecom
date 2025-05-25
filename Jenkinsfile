@@ -13,21 +13,13 @@ pipeline {
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Run Pytest') {
             steps {
                 sh '''
                     python3 -m venv venv
                     . venv/bin/activate
-                    pip install --upgrade pip
+                    curl -sS https://bootstrap.pypa.io/get-pip.py | python3
                     pip install -r requirements.txt
-                '''
-            }
-        }
-
-        stage('Run Pytest') {
-            steps {
-                sh '''
-                    . venv/bin/activate
                     pytest --maxfail=1 --disable-warnings --junitxml=report.xml
                 '''
             }
