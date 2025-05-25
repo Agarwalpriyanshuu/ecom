@@ -18,8 +18,9 @@ pipeline {
                 sh '''
                 python3 -m venv venv
                 . venv/bin/activate
-                pip install --upgrade pip
-                pip install -r requirements.txt
+                pip install --break-system-packages --upgrade pip
+                pip install --break-system-packages -r requirements.txt
+
                 '''
             }
         }
