@@ -18,6 +18,8 @@ pipeline {
                 sh '''
                     python3 -m venv venv
                     . venv/bin/activate
+                    echo "Using pip from: $(which pip)"
+                    unset PIP_REQUIRE_VIRTUALENV
                     pip install --upgrade pip
                     pip install -r requirements.txt
                     pip install bandit
