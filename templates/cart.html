@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+</head>
+<body>
+    <h1>Your Shopping Cart</h1>
+    <a href="{{ url_for('home') }}">Continue Shopping</a>
+    <ul>
+        {% for item in items %}
+        <li>
+            {{ item.product.name }} - {{ item.qty }} x ${{ "%.2f"|format(item.product.price) }} = ${{ "%.2f"|format(item.subtotal) }}
+        </li>
+        {% endfor %}
+    </ul>
+    <h3>Total: ${{ "%.2f"|format(total) }}</h3>
+    <a href="{{ url_for('checkout') }}">Checkout</a>
+</body>
+</html>
