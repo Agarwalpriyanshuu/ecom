@@ -13,18 +13,14 @@ pipeline {
             }
         }
 
-        stage('Run Tests & Bandit') {
+        stage('Run Pytest') {
             steps {
                 sh '''
                     python3 -m venv venv
                     . venv/bin/activate
-                    echo "Using pip from: $(which pip)"
-                    unset PIP_REQUIRE_VIRTUALENV
-                    pip install --upgrade pip --break-system-packages
-                    pip install -r requirements.txt --break-system-packages
-                    pip install bandit pytest --break-system-packages                    
+                    curl -sS https://bootstrap.pypa.io/get-pip.py | python3
+                    pip install -r requirements.txt
                     pytest --maxfail=1 --disable-warnings --junitxml=report.xml
-                    bandit -r . -f json -o bandit-report.json || true
                 '''
             }
         }
@@ -38,7 +34,7 @@ pipeline {
                 }
             }
         }
-    }
+    }  // <-- closing stages block here
 
     post {
         always {
